@@ -81,7 +81,9 @@ class AssetPipelineGrailsPlugin extends grails.plugins.Plugin {
 
         try {
             manifestFile = applicationContext.getResource("assets/manifest.properties")
+            log.debug("Attempting to load manifest: " + manifestFile)
             if(!manifestFile.exists()) {
+                log.debug("Manifest does not exist. Trying from classpath(assets/manifest.properties)")
                 manifestFile = applicationContext.getResource("classpath:assets/manifest.properties")
             }
         } catch(e) {
@@ -91,7 +93,7 @@ class AssetPipelineGrailsPlugin extends grails.plugins.Plugin {
         }
 
         def useManifest = assetsConfig.useManifest ?: true
-
+        log.debug("useManifest: ${useManifest}")
         if(useManifest && manifestFile?.exists()) {
             try {
                 manifestProps.load(manifestFile.inputStream)

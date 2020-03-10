@@ -12,11 +12,13 @@ class AssetPipelineBootStrap {
             return
         }
         def manifest = AssetPipelineConfigHolder.manifest
+        log.debug("asset pipeline bootstrap manifest exists: ${manifest != null}")
 
         if(manifest) {
             def storageFile = new File(storagePath)
             storageFile.mkdirs()
             manifest.stringPropertyNames().each { propertyName ->
+                log.debug("processing property: ${propertyName}")
                 def propertyValue = manifest.getProperty(propertyName)
                 def res = grailsApplication.getParentContext().getResource("assets/${propertyValue}")
                 if(!res.exists()) {
@@ -39,6 +41,7 @@ class AssetPipelineBootStrap {
             }
             def manifestFile = new File(storagePath,'manifest.properties')
             manifest.store(manifestFile.newWriter(),"")
+            log.debug("storing manifest file at: " + manifestFile.absolutePath)
         }
     }
 

@@ -54,6 +54,7 @@ class AssetPipelineFilter extends OncePerRequestFilter {
 		if(fileUri.startsWith(baseAssetUrl)) {
 			fileUri = fileUri.substring(baseAssetUrl.length())
 		}
+		log.debug("warDeployed: ${warDeployed}")
 
 		if(warDeployed) {
 			final Properties manifest = AssetPipelineConfigHolder.manifest
@@ -132,6 +133,7 @@ class AssetPipelineFilter extends OncePerRequestFilter {
 				if(!file.exists()) {
 					file = applicationContext.getResource("classpath:assets/${fileUri}")
 				}
+				log.debug("Asset file: ${file.filename} ${file.exists() ? "exists":"does not exist"}")
 
 				if(file.exists()) {
 					final AssetPipelineResponseBuilder responseBuilder = new AssetPipelineResponseBuilder(
