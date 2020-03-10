@@ -36,6 +36,7 @@ class AssetPipelineFilter extends OncePerRequestFilter {
 		final FilterConfig config = filterConfig
 		applicationContext = WebApplicationContextUtils.getWebApplicationContext(config.servletContext)
 		servletContext = config.servletContext
+		log.debug("warDeployed: ${AssetPipelineConfigHolder.manifest ? true : false}")
 	}
 
 	@Override
@@ -54,7 +55,6 @@ class AssetPipelineFilter extends OncePerRequestFilter {
 		if(fileUri.startsWith(baseAssetUrl)) {
 			fileUri = fileUri.substring(baseAssetUrl.length())
 		}
-		log.debug("warDeployed: ${warDeployed}")
 
 		if(warDeployed) {
 			final Properties manifest = AssetPipelineConfigHolder.manifest
@@ -133,7 +133,6 @@ class AssetPipelineFilter extends OncePerRequestFilter {
 				if(!file.exists()) {
 					file = applicationContext.getResource("classpath:assets/${fileUri}")
 				}
-				log.debug("Asset file: ${file.filename} ${file.exists() ? "exists":"does not exist"}")
 
 				if(file.exists()) {
 					final AssetPipelineResponseBuilder responseBuilder = new AssetPipelineResponseBuilder(
@@ -167,7 +166,7 @@ class AssetPipelineFilter extends OncePerRequestFilter {
 						gzipFile
 					)
 					fileCache.put(fileUri, newCache)
-
+					log.debug("Asset file found: ${fileUri}")
 					if(response.status != 304) {
 						// Check for GZip
 						final String acceptsEncoding = request.getHeader("Accept-Encoding")
@@ -203,6 +202,7 @@ class AssetPipelineFilter extends OncePerRequestFilter {
 				} else {
 					final AssetAttributes newCache = new AssetAttributes(false, false, false, null, null, null, null, null)
 					fileCache.put(fileUri, newCache)
+					log.debug("did not find:  ${fileUri}")
 					if(!skipNotFound){
 						response.status = 404
 						response.flushBuffer()
@@ -221,6 +221,7 @@ class AssetPipelineFilter extends OncePerRequestFilter {
 			}
 
 			if(fileContents != null) {
+				log.debug("found:  ${fileUri}")
 				response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate") // HTTP 1.1.
 				response.setHeader("Pragma", "no-cache") // HTTP 1.0.
 				response.setDateHeader("Expires", 0) // Proxies.
@@ -234,6 +235,7 @@ class AssetPipelineFilter extends OncePerRequestFilter {
 					log.debug("File Transfer Aborted (Probably by the user)", e)
 				}
 			} else {
+				log.debug("did not find:  ${fileUri}")
 				if(!skipNotFound) {
 					response.status = 404
 					response.flushBuffer()
